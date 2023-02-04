@@ -4,7 +4,7 @@ import random
 import librosa
 import numpy as np
 
-from src.random_resized_crop import RandomResizedCrop
+from .random_resized_crop import RandomResizedCrop
 
 cv2.setNumThreads(0)
 

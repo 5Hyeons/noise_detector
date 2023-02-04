@@ -1,2 +1,2 @@
-import src.argus_models
-import src.metrics
+from . import argus_models
+from . import metrics

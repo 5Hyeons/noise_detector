@@ -4,7 +4,7 @@ import numpy as np
 import librosa
 import librosa.display
 
-from src.config import audio as config
+from .config import audio as config
 
 
 def get_audio_config():

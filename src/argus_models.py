@@ -3,16 +3,16 @@ import torch
 from argus import Model
 from argus.utils import deep_detach, deep_to
 
-from src.models import resnet
-from src.models import senet
-from src.models.feature_extractor import FeatureExtractor
-from src.models.simple_kaggle import SimpleKaggle
-from src.models.simple_attention import SimpleAttention
-from src.models.skip_attention import SkipAttention
-from src.models.aux_skip_attention import AuxSkipAttention
-from src.models.rnn_aux_skip_attention import RnnAuxSkipAttention
-from src.losses import OnlyNoisyLqLoss, OnlyNoisyLSoftLoss, BCEMaxOutlierLoss
-from src import config
+from .models import resnet
+from .models import senet
+from .models.feature_extractor import FeatureExtractor
+from .models.simple_kaggle import SimpleKaggle
+from .models.simple_attention import SimpleAttention
+from .models.skip_attention import SkipAttention
+from .models.aux_skip_attention import AuxSkipAttention
+from .models.rnn_aux_skip_attention import RnnAuxSkipAttention
+from .losses import OnlyNoisyLqLoss, OnlyNoisyLSoftLoss, BCEMaxOutlierLoss
+from . import config
 
 
 class FreesoundModel(Model):

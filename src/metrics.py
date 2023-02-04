@@ -3,7 +3,7 @@ import numpy as np
 
 from argus.metrics.metric import Metric
 
-from src import config
+from . import config
 
 
 class MultiCategoricalAccuracy(Metric):

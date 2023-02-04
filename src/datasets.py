@@ -10,8 +10,8 @@ from pathlib import Path
 from functools import partial
 from torch.utils.data import Dataset
 
-from src.audio import read_as_melspectrogram, get_audio_config
-from src import config
+from .audio import read_as_melspectrogram, get_audio_config
+from . import config
 
 
 N_WORKERS = mp.cpu_count()

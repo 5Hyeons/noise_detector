@@ -5,8 +5,8 @@ import numpy as np
 from pathlib import Path
 from scipy.stats.mstats import gmean
 
-from src.datasets import get_noisy_data_generator, get_folds_data, get_augment_folds_data_generator
-from src import config
+from .datasets import get_noisy_data_generator, get_folds_data, get_augment_folds_data_generator
+from . import config
 
 
 def gmean_preds_blend(probs_df_lst):

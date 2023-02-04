@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 
 from argus import load_model
 
-from src.tiles import ImageSlicer
+from .tiles import ImageSlicer
 
 
 @torch.no_grad()

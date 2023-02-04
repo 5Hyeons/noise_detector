@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 from hashlib import sha1
 
-
 kernel = False
 kernel_mode = ""
 if 'MODE' in os.environ:
@@ -18,8 +17,8 @@ if kernel:
         input_data_dir = Path('/kaggle/input/freesound-audio-tagging-2019/')
     save_data_dir = Path('/kaggle/working/')
 else:
-    input_data_dir = Path('/workdir/data/')
-    save_data_dir = Path('/workdir/data/')
+    input_data_dir = Path('./data/')
+    save_data_dir = Path('./data/')
 
 train_curated_dir = input_data_dir / 'train_curated'
 train_noisy_dir = input_data_dir / 'train_noisy'

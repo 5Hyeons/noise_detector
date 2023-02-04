@@ -1,3 +1,4 @@
+import os
 import json
 import argparse
 import numpy as np
@@ -9,30 +10,29 @@ from src.audio import read_as_melspectrogram
 from src.transforms import get_transforms
 from src.metrics import LwlrapBase
 from src.utils import get_best_model_path, gmean_preds_blend
-from src.datasets import get_test_data
+from src.datasets import get_data
 from src import config
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--experiment', required=True, type=str)
+parser.add_argument('--data_path', required=True, type=str, default=None)
 parser.add_argument('--save_path', required=False, type=str, default=None)
 args = parser.parse_args()
 
-# Path object
-EXPERIMENT_DIR = config.experiments_dir / args.experiment
-PREDICTION_DIR = config.predictions_dir / args.experiment / 'probs'
-RESULT_PATH = config.predictions_dir / args.experiment / 'result.csv'
+WORK_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+EXPERIMENT_DIR = WORK_DIR / 'data' / 'experiments' / args.experiment
+PREDICTION_DIR = WORK_DIR / 'data'/ 'predictions' / args.experiment / 'probs'
 #
 DEVICE = 'cuda'
 CROP_SIZE = 256
 BATCH_SIZE = 16
 
-def pred_fold(predictor, fold, test_data):
+def pred_fold(predictor, fold, input_data):
     fold_prediction_dir = PREDICTION_DIR
     fold_prediction_dir.mkdir(parents=True, exist_ok=True)
     fold_probs_path = fold_prediction_dir / f'probs_fold_{fold}.csv'
 
-    fname_lst, images_lst = test_data
+    fname_lst, images_lst, fpath_lst = input_data
     pred_lst = []
     for fname, image in zip(fname_lst, images_lst):
         pred = predictor.predict(image)
@@ -76,11 +76,9 @@ def get_result(probs, save_path):
     result.index.name = 'fname'
     result.to_csv(save_path)
 
-
-
-if __name__ == "__main__":
+def prediction():
     transforms = get_transforms(False, CROP_SIZE)
-    test_data = get_test_data()
+    input_data = get_data(args.data_path)
 
     for fold in config.folds:
         print("Predict fold", fold)
@@ -93,12 +91,14 @@ if __name__ == "__main__":
                               (config.audio.n_mels, CROP_SIZE//4),
                               device=DEVICE)
 
-        print("Test predict")
-        pred_fold(predictor, fold, test_data)
+        pred_fold(predictor, fold, input_data)
 
     print("Blend folds predictions")
     blend_probs_path = PREDICTION_DIR / 'probs.csv'
     blend_predictions(blend_probs_path)
+    # save_path 입력하지 않을 경우, 데이터 폴더 명으로 저장.
     if args.save_path is None:
-        args.save_path = RESULT_PATH
+        args.save_path = str(args.data_path).rstrip('/')+'.csv'
+        print(args.save_path)
     get_result(blend_probs_path, args.save_path)
+    os.chmod(args.save_path, 0o0777)

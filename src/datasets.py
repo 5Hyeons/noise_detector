@@ -4,8 +4,10 @@ import torch
 import random
 import numpy as np
 import pandas as pd
-from functools import partial
 import multiprocessing as mp
+
+from pathlib import Path
+from functools import partial
 from torch.utils.data import Dataset
 
 from src.audio import read_as_melspectrogram, get_audio_config
@@ -15,10 +17,13 @@ from src import config
 N_WORKERS = mp.cpu_count()
 
 
-def get_test_data():
-    print("Start load test data")
+def get_data(data_path:str=None):
+    '''return file names, melspectrograms, file paths'''
+    print("Start load data")
     fname_lst = []
     wav_path_lst = []
+    if data_path is not None:
+        config.test_dir = Path(data_path)
     for wav_path in sorted(config.test_dir.glob('*.wav')):
         wav_path_lst.append(wav_path)
         fname_lst.append(wav_path.name)
@@ -26,7 +31,7 @@ def get_test_data():
     with mp.Pool(N_WORKERS) as pool:
         images_lst = pool.map(read_as_melspectrogram, wav_path_lst)
 
-    return fname_lst, images_lst
+    return fname_lst, images_lst, wav_path_lst
 
 
 def get_folds_data(corrections=None):

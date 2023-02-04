@@ -1,0 +1,16 @@
+numpy
+torch
+torchvision
+opencv-python
+scipy
+matplotlib
+pandas
+jupyter
+scikit-learn
+scikit-image
+librosa
+pytorch-argus
+numba
+llvmlite
+sounddevice
+gdown

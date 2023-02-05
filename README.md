@@ -44,6 +44,11 @@ The provided [Dockerfile](Dockerfile) is supplied to build an image with CUDA su
     output_path = 'output_csv_path_what_you_want'
     device = 'cuda'
     ```
+    * data_path : Directory containing audio files
+    * output_path : File path to save    
+    * device : If you want to run on CPU, set 'cpu' 
+   
+   
 * Auto labeling whether It is noisy or not 
     ```python
     noise_detector.predict(data_path=data_path, output_path=output_path, device=device)

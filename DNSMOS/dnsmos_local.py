@@ -93,7 +93,7 @@ class ComputeScore:
                 predicted_mos_ovr_seg.append(mos_ovr)
             predicted_p808_mos.append(p808_mos)
 
-        clip_dict = {'filename': fpath, 'len_in_sec': actual_audio_len/fs, 'sr':fs}
+        clip_dict = {'fname': fpath, 'len_in_sec': actual_audio_len/fs, 'sr':fs}
         clip_dict['num_hops'] = num_hops
         if not self.only_mos:
             clip_dict['OVRL_raw'] = np.mean(predicted_mos_ovr_seg_raw)
@@ -105,7 +105,7 @@ class ComputeScore:
         clip_dict['P808_MOS'] = np.mean(predicted_p808_mos)
         return clip_dict
 
-def evaluate(data_path, output_path, personalized_MOS=False, only_mos=False):
+def quality_evaluate(data_path, output_path, personalized_MOS=False, only_mos=False):
     
     models = glob.glob(os.path.join(data_path, "*"))
     audio_clips_list = []
@@ -144,12 +144,19 @@ def evaluate(data_path, output_path, personalized_MOS=False, only_mos=False):
             else:
                 rows.append(data)            
 
-    df = pd.DataFrame(rows)
-    df.sort_values(by='filename', inplace=True)
-    if output_path:
-        df.to_csv(output_path)
-    else:
-        print(df.describe())
+    quality_df = pd.DataFrame(rows)
+    quality_df.set_index('fname', inplace=True)
+    quality_df.sort_index(inplace=True)
+    if os.path.exists(output_path):
+        labeling_df = pd.read_csv(output_path)
+        labeling_df.set_index('fname', inplace=True)
+        # 노이즈 검출한 파일이 이미 있는 경우 concat
+        if 'P808_MOS' not in labeling_df.columns and \
+           'state' in labeling_df.columns and \
+            all(labeling_df.index == quality_df.index):
+            quality_df = pd.concat([labeling_df, quality_df], axis=1)
+    quality_df.to_csv(output_path)
+    os.chmod(output_path, 0o0777)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
@@ -161,4 +168,4 @@ if __name__=="__main__":
     
     args = parser.parse_args()
 
-    evaluate(args.testset_dir, args.csv_path, args.personalized_MOS)
+    quality_evaluate(args.testset_dir, args.csv_path, args.personalized_MOS)

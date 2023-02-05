@@ -2,7 +2,6 @@ FROM nvidia/cuda:11.3.0-cudnn8-devel-ubuntu20.04
 
 ENV LANG C.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
-ENV TORCH_CUDA_ARCH_LIST=8.6
 
 RUN apt-get update &&\
     apt-get -y install build-essential yasm nasm \
@@ -32,7 +31,6 @@ RUN pip3 install --no-cache-dir packaging
 #     torchvision
 RUN pip3 install --no-cache-dir torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
 
-ENV FORCE_CUDA="1"
 RUN git clone https://github.com/NVIDIA/apex &&\
     cd apex &&\
     # git checkout 3bae8c83494184673f01f3867fa051518e930895 &&\

@@ -50,11 +50,12 @@ def blend_predictions(experiment, output_path):
     blend_df = gmean_preds_blend(probs_df_lst)
     blend_df.to_csv(output_path)
 
-def get_result(probs, output_path):
+def get_result(probs):
     probs_df = pd.read_csv(probs)
     probs_df.set_index('fname', inplace=True)
     labels = []
     for idx, row in probs_df.iterrows():
+        # labeling
         if row['Speech'] > 0.8:
             if row['Noisy'] > 0.5:
                 labels.append('Noisy')
@@ -66,9 +67,9 @@ def get_result(probs, output_path):
                           index=probs_df.index,
                           columns=['state'])
     result.index.name = 'fname'
-    result.to_csv(output_path)
+    return result
 
-def prediction(data_path, output_path=None, experiment='vctk_001', batch_size=16, device='cuda'):
+def prediction(data_path, output_path=None, experiment='vctk_001', batch_size=16, device='cuda', overwrite=False):
     '''
     data_path: input source data dir.
     output_path: path to save output csv file. if None, the output will be saved as the input folder name.
@@ -93,11 +94,21 @@ def prediction(data_path, output_path=None, experiment='vctk_001', batch_size=16
     print("Blend folds predictions")
     blend_probs_path = PREDICTION_DIR / experiment / 'probs'/ 'probs.csv'
     blend_predictions(experiment, blend_probs_path)
+
     # output_path 입력하지 않을 경우, 데이터 폴더 명으로 저장.
     if output_path is None:
         output_path = str(data_path).rstrip('/')+'.csv'
-        print(output_path)
-    get_result(blend_probs_path, output_path)
+
+    labeling_df = get_result(blend_probs_path)
+    if os.path.exists(output_path):
+        quality_df = pd.read_csv(output_path)
+        quality_df.set_index('fname', inplace=True)
+        # 퀄리티 평가한 파일이 이미 있는 경우 concat
+        if 'state' not in quality_df.columns and \
+           'P808_MOS' in quality_df.columns and \
+            all(quality_df.index == labeling_df.index):
+            labeling_df = pd.concat([labeling_df, quality_df], axis=1)
+    labeling_df.to_csv(output_path)
     os.chmod(output_path, 0o0777)
 
 if __name__ == '__main__':

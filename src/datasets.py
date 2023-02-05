@@ -26,7 +26,7 @@ def get_data(data_path:str=None):
         config.test_dir = Path(data_path)
     for wav_path in sorted(config.test_dir.glob('*.wav')):
         wav_path_lst.append(wav_path)
-        fname_lst.append(wav_path.name)
+        fname_lst.append(str(wav_path))
 
     with mp.Pool(N_WORKERS) as pool:
         images_lst = pool.map(read_as_melspectrogram, wav_path_lst)

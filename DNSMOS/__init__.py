@@ -1,1 +1,1 @@
-from .dnsmos_local import evaluate
+from .dnsmos_local import quality_evaluate

@@ -69,7 +69,7 @@ def get_result(probs):
     result.index.name = 'fname'
     return result
 
-def prediction(data_path, output_path=None, experiment='vctk_001', batch_size=16, device='cuda', overwrite=False):
+def predict(data_path, output_path=None, experiment='vctk_001', batch_size=16, device='cuda'):
     '''
     data_path: input source data dir.
     output_path: path to save output csv file. if None, the output will be saved as the input folder name.
@@ -118,4 +118,4 @@ if __name__ == '__main__':
     parser.add_argument('--output_path', required=False, type=str, default=None)
     args = parser.parse_args()
 
-    prediction(args.data_path, args.output_path, args.experiment)
+    predict(args.data_path, args.output_path, args.experiment)

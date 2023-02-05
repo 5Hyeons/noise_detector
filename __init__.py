@@ -1,2 +1,2 @@
-from .predict_folds import prediction
+from .predict_folds import predict
 from . import DNSMOS

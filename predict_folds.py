@@ -17,9 +17,7 @@ WORK_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
 EXPERIMENT_DIR = WORK_DIR / 'data' / 'experiments' 
 PREDICTION_DIR = WORK_DIR / 'data'/ 'predictions'
 #
-DEVICE = 'cuda'
 CROP_SIZE = 256
-BATCH_SIZE = 16
 
 def pred_fold(predictor, experiment, input_data, fold):
     fold_prediction_dir = PREDICTION_DIR / experiment / 'probs'
@@ -70,7 +68,7 @@ def get_result(probs, output_path):
     result.index.name = 'fname'
     result.to_csv(output_path)
 
-def prediction(data_path, output_path=None, experiment='vctk_001'):
+def prediction(data_path, output_path=None, experiment='vctk_001', batch_size=16, device='cuda'):
     '''
     data_path: input source data dir.
     output_path: path to save output csv file. if None, the output will be saved as the input folder name.
@@ -85,10 +83,10 @@ def prediction(data_path, output_path=None, experiment='vctk_001'):
         model_path = get_best_model_path(fold_dir)
         print("Model path", model_path)
         predictor = Predictor(model_path, transforms,
-                              BATCH_SIZE,
+                              batch_size,
                               (config.audio.n_mels, CROP_SIZE),
                               (config.audio.n_mels, CROP_SIZE//4),
-                              device=DEVICE)
+                              device=device)
 
         pred_fold(predictor, experiment, input_data, fold)
 

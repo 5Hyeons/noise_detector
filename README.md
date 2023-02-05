@@ -25,6 +25,10 @@ The provided [Dockerfile](Dockerfile) is supplied to build an image with CUDA su
     cd noise_detector
     make build
     ```
+* Download pretrained model in [here](https://drive.google.com/file/d/1VZ6Mygt7JAYIeF2Nay_gEHHdFctjUIqv/view?usp=share_link) and unzip in 'data' folder
+    ```bash
+    unzip experiments.zip -d data
+    ```
 * Copy the Makefile to the path where you want to use the package.
     ```bash
     cp Makefile '../'
@@ -48,7 +52,7 @@ The provided [Dockerfile](Dockerfile) is supplied to build an image with CUDA su
     * output_path : File path to save    
     * device : If you want to run on CPU, set 'cpu' 
    
-   
+
 * Auto labeling whether It is noisy or not 
     ```python
     noise_detector.predict(data_path=data_path, output_path=output_path, device=device)
@@ -96,6 +100,8 @@ The provided [Dockerfile](Dockerfile) is supplied to build an image with CUDA su
 
 ## References
 
-[1] argus-freesound: Kaggle | 1st place for Freesound Audio Tagging 2019. [Link](https://github.com/lRomul/argus-freesound)
+[1] [argus-freesound](https://github.com/lRomul/argus-freesound): Kaggle | 1st place for Freesound Audio Tagging 2019.
 
-[2] DNSMOS: A non-intrusive perceptual objective speech quality metric to evaluate noise suppressors [Link](https://github.com/microsoft/DNS-Challenge/tree/master/DNSMOS)
+[2] [DNSMOS](https://github.com/microsoft/DNS-Challenge/tree/master/DNSMOS): A non-intrusive perceptual objective speech quality metric to evaluate noise suppressors.
+
+[3] [Noisy speech database](https://datashare.ed.ac.uk/handle/10283/2791) for training speech enhancement algorithms and TTS models. 

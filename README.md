@@ -25,6 +25,11 @@ The provided [Dockerfile](Dockerfile) is supplied to build an image with CUDA su
     cd noise_detector
     make build
     ```
+* Copy the Makefile to the path where you want to use the package.
+    ```bash
+    cp Makefile '../'
+    cd ..
+    ```
 * Run docker container 
     ```bash
     make run

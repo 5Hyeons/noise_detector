@@ -60,7 +60,7 @@ def get_result(probs):
             if row['Noisy'] > 0.5:
                 labels.append('Noisy')
             else:
-                labels.append('Speech')
+                labels.append('Clean')
         else:
             labels.append('Unknown')
     result = pd.DataFrame(data=labels,

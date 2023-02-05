@@ -22,9 +22,11 @@ INPUT_LENGTH = 9.01
 WORK_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class ComputeScore:
-    def __init__(self, primary_model_path, p808_model_path) -> None:
-        self.onnx_sess = ort.InferenceSession(primary_model_path)
+    def __init__(self, primary_model_path, p808_model_path, only_mos) -> None:
+        self.only_mos = only_mos
         self.p808_onnx_sess = ort.InferenceSession(p808_model_path)
+        if not self.only_mos:
+            self.onnx_sess = ort.InferenceSession(primary_model_path)
         
     def audio_melspec(self, audio, n_mels=120, frame_size=320, hop_length=160, sr=16000, to_db=True):
         mel_spec = librosa.feature.melspectrogram(y=audio, sr=sr, n_fft=frame_size+1, hop_length=hop_length, n_mels=n_mels)
@@ -80,28 +82,30 @@ class ComputeScore:
             oi = {'input_1': input_features}
             p808_oi = {'input_1': p808_input_features}
             p808_mos = self.p808_onnx_sess.run(None, p808_oi)[0][0][0]
-            mos_sig_raw,mos_bak_raw,mos_ovr_raw = self.onnx_sess.run(None, oi)[0][0]
-            mos_sig,mos_bak,mos_ovr = self.get_polyfit_val(mos_sig_raw,mos_bak_raw,mos_ovr_raw,is_personalized_MOS)
-            predicted_mos_sig_seg_raw.append(mos_sig_raw)
-            predicted_mos_bak_seg_raw.append(mos_bak_raw)
-            predicted_mos_ovr_seg_raw.append(mos_ovr_raw)
-            predicted_mos_sig_seg.append(mos_sig)
-            predicted_mos_bak_seg.append(mos_bak)
-            predicted_mos_ovr_seg.append(mos_ovr)
+            if not self.only_mos:
+                mos_sig_raw,mos_bak_raw,mos_ovr_raw = self.onnx_sess.run(None, oi)[0][0]
+                mos_sig,mos_bak,mos_ovr = self.get_polyfit_val(mos_sig_raw,mos_bak_raw,mos_ovr_raw,is_personalized_MOS)
+                predicted_mos_sig_seg_raw.append(mos_sig_raw)
+                predicted_mos_bak_seg_raw.append(mos_bak_raw)
+                predicted_mos_ovr_seg_raw.append(mos_ovr_raw)
+                predicted_mos_sig_seg.append(mos_sig)
+                predicted_mos_bak_seg.append(mos_bak)
+                predicted_mos_ovr_seg.append(mos_ovr)
             predicted_p808_mos.append(p808_mos)
 
         clip_dict = {'filename': fpath, 'len_in_sec': actual_audio_len/fs, 'sr':fs}
         clip_dict['num_hops'] = num_hops
-        clip_dict['OVRL_raw'] = np.mean(predicted_mos_ovr_seg_raw)
-        clip_dict['SIG_raw'] = np.mean(predicted_mos_sig_seg_raw)
-        clip_dict['BAK_raw'] = np.mean(predicted_mos_bak_seg_raw)
-        clip_dict['OVRL'] = np.mean(predicted_mos_ovr_seg)
-        clip_dict['SIG'] = np.mean(predicted_mos_sig_seg)
-        clip_dict['BAK'] = np.mean(predicted_mos_bak_seg)
+        if not self.only_mos:
+            clip_dict['OVRL_raw'] = np.mean(predicted_mos_ovr_seg_raw)
+            clip_dict['SIG_raw'] = np.mean(predicted_mos_sig_seg_raw)
+            clip_dict['BAK_raw'] = np.mean(predicted_mos_bak_seg_raw)
+            clip_dict['OVRL'] = np.mean(predicted_mos_ovr_seg)
+            clip_dict['SIG'] = np.mean(predicted_mos_sig_seg)
+            clip_dict['BAK'] = np.mean(predicted_mos_bak_seg)
         clip_dict['P808_MOS'] = np.mean(predicted_p808_mos)
         return clip_dict
 
-def evaluate(data_path, output_path, personalized_MOS:bool=False):
+def evaluate(data_path, output_path, personalized_MOS=False, only_mos=False):
     
     models = glob.glob(os.path.join(data_path, "*"))
     audio_clips_list = []
@@ -112,7 +116,7 @@ def evaluate(data_path, output_path, personalized_MOS:bool=False):
     else:
         primary_model_path = os.path.join(WORK_DIR, 'DNSMOS', 'sig_bak_ovr.onnx')
 
-    compute_score = ComputeScore(primary_model_path, p808_model_path)
+    compute_score = ComputeScore(primary_model_path, p808_model_path, only_mos)
 
     rows = []
     clips = []

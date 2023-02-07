@@ -66,7 +66,7 @@ The provided [Dockerfile](Dockerfile) is supplied to build an image with CUDA su
         |p_232_005.wav|Clean|
 * Evaluate speech quality 
     ```python
-    noise_detector.DNSMOS.quality_evaluate(data_path=data_path, output_path=output_path, personalized_MOS=False, only_mos=True)
+    noise_detector.DNSMOS.evaluate_quality(data_path=data_path, output_path=output_path, personalized_MOS=False, only_mos=True)
     ```
     * output sample [only_mos=True]
         |fname|len_in_sec|sr|num_hops|P808_MOS|
@@ -88,7 +88,7 @@ The provided [Dockerfile](Dockerfile) is supplied to build an image with CUDA su
 
     ```python
     noise_detector.predict(data_path=data_path, output_path=output_path, device=device)
-    noise_detector.DNSMOS.quality_evaluate(data_path=data_path, output_path=output_path, personalized_MOS=False, only_mos=True)
+    noise_detector.DNSMOS.evaluate_quality(data_path=data_path, output_path=output_path, personalized_MOS=False, only_mos=True)
     ```
     * output sample
         |fname|state|len_in_sec|sr|num_hops|P808_MOS|

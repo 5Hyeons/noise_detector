@@ -105,7 +105,7 @@ class ComputeScore:
         clip_dict['P808_MOS'] = np.mean(predicted_p808_mos)
         return clip_dict
 
-def quality_evaluate(data_path, output_path, personalized_MOS=False, only_mos=False):
+def evaluate_quality(data_path, output_path, personalized_MOS=False, only_mos=False):
     
     models = glob.glob(os.path.join(data_path, "*"))
     audio_clips_list = []
@@ -168,4 +168,4 @@ if __name__=="__main__":
     
     args = parser.parse_args()
 
-    quality_evaluate(args.testset_dir, args.csv_path, args.personalized_MOS)
+    evaluate_quality(args.testset_dir, args.csv_path, args.personalized_MOS)

@@ -25,9 +25,9 @@ The provided [Dockerfile](Dockerfile) is supplied to build an image with CUDA su
     cd noise_detector
     make build
     ```
-* Download pretrained model in [here](https://drive.google.com/file/d/1VZ6Mygt7JAYIeF2Nay_gEHHdFctjUIqv/view?usp=share_link) and unzip into the 'data' folder
+* Download pretrained model in [here](https://drive.google.com/file/d/1VZ6Mygt7JAYIeF2Nay_gEHHdFctjUIqv/view?usp=share_link) and unzip into the 'data/experiments' folder
     ```bash
-    unzip experiments.zip -d data
+    unzip experiments.zip -d data/experiments
     ```
 * Copy the Makefile to the path where you want to use the package.
     ```bash

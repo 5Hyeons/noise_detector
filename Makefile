@@ -1,4 +1,4 @@
-NAME?=argus-freesound
+NAME?=noise_detector
 COMMAND?=bash
 OPTIONS?=
 

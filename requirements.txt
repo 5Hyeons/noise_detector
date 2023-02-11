@@ -15,4 +15,5 @@ llvmlite
 sounddevice
 gdown
 
+matplotlib
 onnxruntime

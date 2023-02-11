@@ -1,5 +1,7 @@
+import os
 import json
 import time
+import glob
 import torch
 import random
 import numpy as np
@@ -16,15 +18,20 @@ from . import config
 
 N_WORKERS = mp.cpu_count()
 
+def get_data(data):
+    if isinstance(data, str):
+        return get_data_from_path(data)
+    elif isinstance(data, list) and isinstance(data[0], bytes):
+        return get_data_from_bytes(data)
 
-def get_data(data_path:str=None):
+def get_data_from_path(data_path:str=None):
     '''return file names, melspectrograms, file paths'''
     print("Start load data")
     fname_lst = []
     wav_path_lst = []
-    if data_path is not None:
-        config.test_dir = Path(data_path)
-    for wav_path in sorted(config.test_dir.glob('*.wav')):
+    if data_path is None:
+        data_path = str(config.test_dir)
+    for wav_path in sorted(glob.glob(os.path.join(data_path, '*.wav'))):
         wav_path_lst.append(wav_path)
         fname_lst.append(str(wav_path))
 
@@ -33,6 +40,13 @@ def get_data(data_path:str=None):
 
     return fname_lst, images_lst, wav_path_lst
 
+def get_data_from_bytes(bytes_list):
+    fname_lst = [i for i in range(len(bytes_list))]
+    wav_path_lst = None
+    with mp.Pool(N_WORKERS) as pool:
+        images_lst = pool.map(read_as_melspectrogram, bytes_list)
+
+    return fname_lst, images_lst, wav_path_lst
 
 def get_folds_data(corrections=None):
     print("Start generate folds data")

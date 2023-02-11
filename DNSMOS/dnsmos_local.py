@@ -148,13 +148,14 @@ def evaluate_quality(data_path, output_path, personalized_MOS=False, only_mos=Fa
     quality_df.set_index('fname', inplace=True)
     quality_df.sort_index(inplace=True)
     if os.path.exists(output_path):
-        labeling_df = pd.read_csv(output_path)
-        labeling_df.set_index('fname', inplace=True)
+        existing_df = pd.read_csv(output_path)
+        existing_df.set_index('fname', inplace=True)
         # 노이즈 검출한 파일이 이미 있는 경우 concat
-        if 'P808_MOS' not in labeling_df.columns and \
-           'state' in labeling_df.columns and \
-            all(labeling_df.index == quality_df.index):
-            quality_df = pd.concat([labeling_df, quality_df], axis=1)
+        if len(existing_df.index) == len(quality_df.index) and all(existing_df.index == quality_df.index):
+            if 'P808_MOS' not in existing_df.columns:
+                quality_df = pd.concat([existing_df, quality_df], axis=1)
+            elif 'state' in existing_df.columns:
+                quality_df.insert(0, 'state', existing_df['state'])
     quality_df.to_csv(output_path)
     os.chmod(output_path, 0o0777)
 

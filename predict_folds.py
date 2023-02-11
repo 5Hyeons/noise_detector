@@ -100,14 +100,18 @@ def predict(data_path, output_path=None, experiment='vctk_001', batch_size=16, d
         output_path = str(data_path).rstrip('/')+'.csv'
 
     labeling_df = get_result(blend_probs_path)
+    labeling_df.sort_index(inplace=True)
     if os.path.exists(output_path):
-        quality_df = pd.read_csv(output_path)
-        quality_df.set_index('fname', inplace=True)
+        existing_df = pd.read_csv(output_path)
+        existing_df.set_index('fname', inplace=True)
         # 퀄리티 평가한 파일이 이미 있는 경우 concat
-        if 'state' not in quality_df.columns and \
-           'P808_MOS' in quality_df.columns and \
-            all(quality_df.index == labeling_df.index):
-            labeling_df = pd.concat([labeling_df, quality_df], axis=1)
+        if len(existing_df.index) == len(labeling_df.index) and all(existing_df.index == labeling_df.index):
+            if 'state' not in existing_df.columns:
+                labeling_df = pd.concat([labeling_df, existing_df], axis=1)
+            elif 'P808_MOS' in existing_df.columns:
+                for col in existing_df.columns:
+                    labeling_df[col] = existing_df[col]
+    
     labeling_df.to_csv(output_path)
     os.chmod(output_path, 0o0777)
 

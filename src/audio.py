@@ -1,6 +1,8 @@
 # Source: https://www.kaggle.com/daisukelab/creating-fat2019-preprocessed-data
+import io
 import numpy as np
 
+import soundfile as sf
 import librosa
 import librosa.display
 
@@ -14,7 +16,13 @@ def get_audio_config():
 def read_audio(file_path):
     min_samples = int(config.min_seconds * config.sampling_rate)
     try:
-        y, sr = librosa.load(file_path, sr=config.sampling_rate)
+        try:
+            y, sr = librosa.load(file_path, sr=config.sampling_rate)
+        # if file_path is Bytes.
+        except sf.LibsndfileError as e:
+            sr, y = sf.read(io.BytesIO(file_path))
+            y = librosa.resample(y, orig_sr=sr, target_sr=config.sampling_rate)
+
         trim_y, trim_idx = librosa.effects.trim(y)  # trim, top_db=default(60)
 
         if len(trim_y) < min_samples:

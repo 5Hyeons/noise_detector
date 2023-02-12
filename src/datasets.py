@@ -19,7 +19,7 @@ from . import config
 N_WORKERS = mp.cpu_count()
 
 def get_data(data):
-    if isinstance(data, str):
+    if isinstance(data, str) or data is None:
         return get_data_from_path(data)
     elif isinstance(data, list) and isinstance(data[0], bytes):
         return get_data_from_bytes(data)

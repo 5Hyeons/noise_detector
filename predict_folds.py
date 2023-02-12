@@ -57,8 +57,12 @@ def get_result(probs):
     for idx, row in probs_df.iterrows():
         # labeling
         if row['Speech'] > 0.8:
-            if row['Noisy'] > 0.5:
-                labels.append('Noisy')
+            for col in probs_df.columns:
+                if col == 'Speech': continue
+                if row[col] > 0.5:
+                    print(col)
+                    labels.append('Noisy')
+                    break
             else:
                 labels.append('Clean')
         else:
@@ -110,6 +114,7 @@ def predict(data_path, output_path=None, experiment='vctk_001', batch_size=16, d
                 labeling_df = pd.concat([labeling_df, existing_df], axis=1)
             elif 'P808_MOS' in existing_df.columns:
                 for col in existing_df.columns:
+                    if col == 'state': continue
                     labeling_df[col] = existing_df[col]
     
     labeling_df.to_csv(output_path)

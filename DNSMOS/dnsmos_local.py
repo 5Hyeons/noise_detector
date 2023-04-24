@@ -111,6 +111,8 @@ def evaluate_quality(data_path, output_path, personalized_MOS=False, only_mos=Fa
     audio_clips_list = []
     p808_model_path = os.path.join(WORK_DIR, 'DNSMOS', 'model_v8.onnx')
 
+    # personalized means that interfering speaker is pernalized
+    # you can use this with just -p option
     if personalized_MOS:
         primary_model_path = os.path.join(WORK_DIR, 'pDNSMOS', 'sig_bak_ovr.onnx')
     else:
@@ -120,7 +122,8 @@ def evaluate_quality(data_path, output_path, personalized_MOS=False, only_mos=Fa
 
     rows = []
     clips = []
-    clips = glob.glob(os.path.join(data_path, "*.wav"))
+    clips = glob.glob(os.path.join(data_path, "**", "*.wav"), recursive=True)
+    print(len(clips))
     is_personalized_eval = personalized_MOS
     desired_fs = SAMPLING_RATE
     for m in tqdm(models):
@@ -133,6 +136,7 @@ def evaluate_quality(data_path, output_path, personalized_MOS=False, only_mos=Fa
             max_recursion_depth -= 1
         clips.extend(audio_clips_list)
 
+    # 이 부분 잘 모름
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_to_url = {executor.submit(compute_score, clip, desired_fs, is_personalized_eval): clip for clip in clips}
         for future in tqdm(concurrent.futures.as_completed(future_to_url)):
@@ -150,12 +154,26 @@ def evaluate_quality(data_path, output_path, personalized_MOS=False, only_mos=Fa
     if os.path.exists(output_path):
         existing_df = pd.read_csv(output_path)
         existing_df.set_index('fname', inplace=True)
-        # 노이즈 검출한 파일이 이미 있는 경우 concat
+        '''
+        같은 데이터를 여러번 추론하는 경우 변경된 부분만 업데이트하는 조건 문
+        인덱스가 같다는 것은 같은 데이터를 추론했다는 뜻
+        예시
+        1) csv 파일에 noise detect 결과와 DNSMOS 결과 둘다 있는 경우 noise detect 결과는 그대로 두고 DNSMOS만 갱신
+        2) csv 파일에 noise detect 결과만 있는 경우 DNSMOS 결과를 오른쪽 컬럼에 이어 붙임
+        '''
         if len(existing_df.index) == len(quality_df.index) and all(existing_df.index == quality_df.index):
+            # P808_MOS 컬럼이 없다는 것은 noise_detect 결과만 있다는 뜻
+            # 따라서 단순히 concat하면 됨
             if 'P808_MOS' not in existing_df.columns:
                 quality_df = pd.concat([existing_df, quality_df], axis=1)
+            # state는 noise detector의 결과 컬럼임
+            # 따라서 DNSMOS df 가장 왼쪽에 state 컬럼을 만들고 붙여넣기
             elif 'state' in existing_df.columns:
                 quality_df.insert(0, 'state', existing_df['state'])
+        # 위 조건문에 걸리지 않았다면 다른 데이터를 같은 이름의 csv 파일로 추론했다는 뜻이므로 기존 csv 결과물을 새 csv 결과물로 완전 대체
+        else:
+            pass
+
     quality_df.to_csv(output_path)
     os.chmod(output_path, 0o0777)
 
